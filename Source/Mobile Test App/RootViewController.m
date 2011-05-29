@@ -31,10 +31,11 @@
 	[self.navigationItem setPrompt:@"Performing Request Token Request"];
 	[self.navigationItem setTitle:@"OAuth Test"];
 	[methodInput addTarget:self action:@selector(methodEntered:) forControlEvents:UIControlEventEditingDidEndOnExit];
-	
+
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(requestTokenReceived:) name:MPOAuthNotificationRequestTokenReceived object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(accessTokenReceived:) name:MPOAuthNotificationAccessTokenReceived object:nil];
-	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userAuthenticated:) name:@"MPOAuthNotificationUserAuthenticated" object:nil];
+
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -43,24 +44,31 @@
 									 kConsumerSecret, kMPOAuthCredentialConsumerSecret,
 									 nil];
 		_oauthAPI = [[MPOAuthAPI alloc] initWithCredentials:credentials
-										  authenticationURL:[NSURL URLWithString:@"https://twitter.com/oauth/"]
-												 andBaseURL:[NSURL URLWithString:@"https://twitter.com/"]];
-		
+										  authenticationURL:[NSURL URLWithString:@"https://api.twitter.com/oauth/"]
+												 andBaseURL:[NSURL URLWithString:@"https://api.twitter.com/"]
+												  autoStart: NO];
+
 		if ([[_oauthAPI authenticationMethod] respondsToSelector:@selector(setDelegate:)]) {
 			[(MPOAuthAuthenticationMethodOAuth *)[_oauthAPI authenticationMethod] setDelegate:(id <MPOAuthAuthenticationMethodOAuthDelegate>)[UIApplication sharedApplication].delegate];
 		}
-	} else {
-		[_oauthAPI authenticate];
 	}
+
+	[_oauthAPI authenticate];
 }
 
 - (void)requestTokenReceived:(NSNotification *)inNotification {
 	[self.navigationItem setPrompt:@"Awaiting User Authentication"];
 }
 
+- (void)userAuthenticated:(NSNotification *)inNotification {
+	[self.navigationItem setPrompt:@"Awaiting Access Token"];
+
+	[_oauthAPI authenticate];
+}
+
 - (void)accessTokenReceived:(NSNotification *)inNotification {
 	[self.navigationItem setPrompt:@"Access Token Received"];
-	
+
 	NSData *downloadedData = [_oauthAPI dataForMethod:@"/statuses/friends_timeline.xml"];
 	NSLog(@"downloadedData of size - %d", [downloadedData length]);
 }

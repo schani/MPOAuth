@@ -52,15 +52,17 @@
 - (BOOL)automaticallyRequestAuthenticationFromURL:(NSURL *)inAuthURL withCallbackURL:(NSURL *)inCallbackURL {
 	return YES;
 }
- 
+
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
 	// the url is the callback url with the query string including oauth_token and oauth_verifier in 1.0a
 	if ([[url host] isEqualToString:@"success"] && [url query].length > 0) {
 		NSDictionary *oauthParameters = [MPURLRequestParameter parameterDictionaryFromString:[url query]];
 		oauthVerifier_ = [oauthParameters objectForKey:@"oauth_verifier"];
+		[[NSNotificationCenter defaultCenter] postNotificationName: @"MPOAuthNotificationUserAuthenticated"
+															object: self];
 	}
-	 
+
 	return YES;
 }
- 
+
 @end
