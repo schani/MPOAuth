@@ -84,17 +84,21 @@ NSString * const MPOAuthCredentialVerifierKey				= @"oauth_verifier";
 	} else if (credentials.accessToken && [[NSUserDefaults standardUserDefaults] objectForKey:MPOAuthTokenRefreshDateDefaultsKey]) {
 		NSTimeInterval expiryDateInterval = [[NSUserDefaults standardUserDefaults] doubleForKey:MPOAuthTokenRefreshDateDefaultsKey];
 		NSDate *tokenExpiryDate = [NSDate dateWithTimeIntervalSinceReferenceDate:expiryDateInterval];
-			
+
 		if ([tokenExpiryDate compare:[NSDate date]] == NSOrderedAscending) {
 			[self refreshAccessToken];
+		} else {
+			[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
 		}
-	}	
+	} else {
+		[self.oauthAPI setAuthenticationState:MPOAuthAuthenticationStateAuthenticated];
+	}
 }
 
 - (void)_authenticationRequestForRequestToken {
 	if (self.oauthRequestTokenURL) {
 		MPLog(@"--> Performing Request Token Request: %@", self.oauthRequestTokenURL);
-		
+
 		// Append the oauth_callbackUrl parameter for requesting the request token
 		MPURLRequestParameter *callbackParameter = nil;
 		if (self.delegate && [self.delegate respondsToSelector: @selector(callbackURLForCompletedUserAuthorization)]) {
