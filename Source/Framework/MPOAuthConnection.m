@@ -40,7 +40,8 @@
 	[inRequest addParameters:[inCredentials oauthParameters]];
 	NSURLRequest *urlRequest = [inRequest urlRequestSignedWithSecret:[inCredentials signingKey] usingMethod:[inCredentials signatureMethod]];
 	if (self = [super initWithRequest:urlRequest delegate:inDelegate]) {
-		_credentials = [inCredentials retain];
+        NSAssert ([inCredentials isKindOfClass: [MPOAuthCredentialConcreteStore class]], @"Credentials with wrong class");
+		_credentials = (MPOAuthCredentialConcreteStore*)[inCredentials retain];
 	}
 	return self;
 }
