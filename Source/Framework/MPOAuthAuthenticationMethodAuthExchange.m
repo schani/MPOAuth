@@ -39,8 +39,8 @@
 		NSAssert(username, @"AuthExchange requires a Username credential");
 		NSAssert(password, @"AuthExchange requires a Password credential");
 		
-		MPURLRequestParameter *usernameParameter = [[MPURLRequestParameter alloc] initWithName:@"fs_username" andValue:username];
-		MPURLRequestParameter *passwordParameter = [[MPURLRequestParameter alloc] initWithName:@"fs_password" andValue:password];
+		MPURLRequestParameter *usernameParameter = [[[MPURLRequestParameter alloc] initWithName:@"fs_username" andValue:username] autorelease];
+		MPURLRequestParameter *passwordParameter = [[[MPURLRequestParameter alloc] initWithName:@"fs_password" andValue:password] autorelease];
 		
 		[self.oauthAPI performPOSTMethod:nil
 								   atURL:self.oauthGetAccessTokenURL
