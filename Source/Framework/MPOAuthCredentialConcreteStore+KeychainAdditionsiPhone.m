@@ -38,6 +38,7 @@
 		
 		SecItemUpdate((CFDictionaryRef)keychainItemAttributeDictionary, (CFDictionaryRef)updateDictionary);
 		[updateDictionary release];
+        [searchDictionary release];
 	} else {
 		OSStatus success = SecItemAdd( (CFDictionaryRef)keychainItemAttributeDictionary, NULL);
 		
@@ -72,16 +73,18 @@
 																							  (id)kCFBooleanTrue, (id)kSecReturnPersistentRef,
 											 nil];
 
-	status = SecItemCopyMatching((CFDictionaryRef)searchDictionary, (CFTypeRef *)&attributesDictionary);		
+	status = SecItemCopyMatching((CFDictionaryRef)searchDictionary, (CFTypeRef *)&attributesDictionary);
 	foundValue = [attributesDictionary objectForKey:(id)kSecValueData];
-	if (outKeychainItemRef) {
-		*outKeychainItemRef = attributesDictionary;
-	}
 	
 	if (status == noErr && foundValue) {
 		foundPassword = [[NSString alloc] initWithData:foundValue encoding:NSUTF8StringEncoding];
 	}
-	
+
+    if (outKeychainItemRef)
+		*outKeychainItemRef = attributesDictionary;
+    else
+        [attributesDictionary release];
+
 	return [foundPassword autorelease];
 }
 
